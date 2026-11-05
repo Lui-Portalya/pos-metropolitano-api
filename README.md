@@ -33,10 +33,23 @@ Interactive docs: http://localhost:8000/docs · health check: `GET /health`.
 
 | Variable | Default | Notes |
 |---|---|---|
-| `DATABASE_PATH` | `data/pos.db` | Point at the Node app's `data/pos.db` to share logins and sessions. |
+| `POS_DB_PATH` | `data/pos.db` | Same variable the Node app uses; point both at one file to share data. `DATABASE_PATH` also works. |
 | `COOKIE_SECURE` | `false` | Set `true` behind HTTPS. |
 | `CORS_ORIGINS` | *(empty)* | Comma-separated web origins; enables credentialed CORS. |
 | `SEED_ADMIN_*`, `SEED_CASHIER_*`, `SEED_COOK_*` | `admin`/`admin123`, `cashier`/`cashier123`, `kitchen`/`kitchen123` (role `cook`) | Created only if the `users` table is empty. **Change the passwords.** |
+
+## Database
+
+The schema in `app/db.py` mirrors the Node app's `src/lib/db/schema.ts` (all 11 tables), including its
+column migrations and the `users.role` rebuild for databases that predate the `cook` role, so either app can
+open and upgrade the same SQLite file. Keep the two in sync when the schema changes.
+
+On first start (empty `users` table) the API creates `admin`, `cashier` and `kitchen`. To also load the sample
+menu, ingredients and Ham Sandwich recipe from the Node app's `seed.ts` (safe to re-run):
+
+```bash
+.venv/bin/python -m app.seed
+```
 
 ## Tests
 
@@ -62,17 +75,18 @@ Interactive docs: http://localhost:8000/docs · health check: `GET /health`.
 app/
   main.py        app factory, CORS, routers
   config.py      env settings, constants
-  db.py          SQLite connection, transactions, schema subset, seed admin
+  db.py          SQLite connection, transactions, full schema, migrations, seed users
+  seed.py        sample menu/ingredients/recipe (`python -m app.seed`)
   security.py    bcrypt + token hashing
   errors.py      ApiError + {"error": ...} handlers
   schemas.py     camelCase Pydantic models
   deps.py        auth / role guards (AnyUser, AdminUser)
   services/      sessions, settings, users (business logic)
   routers/       auth, settings, users
-tests/           pytest suite (114 tests)
+tests/           pytest suite
 ```
 
-Modules 4–13 will need their tables added to `app/db.py` and a router each; `deps.py` still needs a `cashier+` guard for Module 6+.
+Modules 4–13 only need a router and services each (the tables already exist); `deps.py` still needs a `cashier+` guard for Module 6+.
 
 ## License
 
