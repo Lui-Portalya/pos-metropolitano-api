@@ -18,16 +18,47 @@ Spec: `API_ENDPOINTS.md` (base path `/api/v1`).
 
 ## Setup
 
-Requires Python **3.12**.
+Requires **Python 3.12** and git. On macOS: `brew install python@3.12`.
 
 ```bash
+git clone https://github.com/Lui-Portalya/pos-metropolitano-api.git
+cd pos-metropolitano-api
 python3.12 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
-cp .env.example .env     # optional
+cp .env.example .env     # optional: change DB path, CORS origins, seed passwords
+```
+
+On Windows use `py -3.12 -m venv .venv`, then `.venv\Scripts\pip` and `.venv\Scripts\uvicorn` in place of `.venv/bin/...`.
+
+## Run
+
+```bash
 .venv/bin/uvicorn app.main:app --reload
 ```
 
-Interactive docs: http://localhost:8000/docs · health check: `GET /health`.
+The API listens on http://localhost:8000 (base path `/api/v1`). Interactive docs: http://localhost:8000/docs · health check: `GET /health`.
+
+On first start it creates `data/pos.db` and these users (change the passwords before deploying):
+
+| Username | Password | Role |
+|---|---|---|
+| `admin` | `admin123` | admin |
+| `cashier` | `cashier123` | cashier |
+| `kitchen` | `kitchen123` | cook |
+
+Optional sample menu, ingredients and recipe: `.venv/bin/python -m app.seed`.
+
+To start over with an empty database, stop the server and delete the DB files (check `POS_DB_PATH` first):
+
+```bash
+rm -f data/pos.db data/pos.db-wal data/pos.db-shm
+```
+
+## Test
+
+```bash
+.venv/bin/pytest
+```
 
 ## Configuration (env vars / `.env`)
 
@@ -49,12 +80,6 @@ menu, ingredients and Ham Sandwich recipe from the Node app's `seed.ts` (safe to
 
 ```bash
 .venv/bin/python -m app.seed
-```
-
-## Tests
-
-```bash
-.venv/bin/pytest
 ```
 
 ## Behaviour worth knowing
