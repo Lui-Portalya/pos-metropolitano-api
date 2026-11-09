@@ -18,7 +18,7 @@ Spec: `API_ENDPOINTS.md` (base path `/api/v1`).
 
 ## Setup
 
-Requires **Python 3.12** and git. On macOS: `brew install python@3.12`.
+Targets **Python 3.12.3** (pinned in `.python-version`; any 3.12.x works) and git. On macOS: `brew install python@3.12` (installs the latest 3.12.x; use pyenv or uv for exactly 3.12.3).
 
 ```bash
 git clone https://github.com/Lui-Portalya/pos-metropolitano-api.git
